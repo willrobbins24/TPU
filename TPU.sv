@@ -1,24 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 08/19/2026 11:59:07 AM
-// Design Name: 
-// Module Name: TPU
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module TPU#(
     parameter int N = 4,
@@ -155,7 +135,7 @@ control_delay #(
 //intantiate deskew
 deskew #(
         .N(N), 
-        .FACTOR_WIDTH(FACTOR_WIDTH), 
+        .PSUM_WIDTH(PSUM_WIDTH), 
         .ADDR_WIDTH(ADDR_WIDTH)
     ) deskew (
         .clk(clk), 
