@@ -1,24 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 08/27/2026 09:48:27 PM
-// Design Name: 
-// Module Name: weight_loader
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module weight_loader#(
     parameter int N           = 4,
@@ -83,6 +63,8 @@ module weight_loader#(
     logic fifo_full;
     assign fifo_full = (fifo_cnt == DEPTH);
     assign wr_ready  = !fifo_full;   // backpressure on the serial input
+    
+    assign w_in_edge = fifo_mem[rd_ptr];
  
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -124,7 +106,6 @@ module weight_loader#(
             w_ld_en    <= 1'b0;
             tile_ready <= 1'b0;
             fifo_pop   <= 1'b0;
-            for (int i = 0; i < N; i++) w_in_edge[i] <= '0;
         end else begin
             w_ld_en    <= 1'b0;
             tile_ready <= 1'b0;
@@ -135,7 +116,6 @@ module weight_loader#(
                     if (tile_available) begin
                         fifo_pop  <= 1'b1;
                         w_ld_en   <= 1'b1;
-                        w_in_edge <= fifo_mem[rd_ptr];
                         load_cnt  <= 1;
                         state     <= LOADING;
                     end
@@ -144,7 +124,6 @@ module weight_loader#(
                 LOADING: begin
                     w_ld_en   <= 1'b1;
                     fifo_pop  <= 1'b1;
-                    w_in_edge <= fifo_mem[rd_ptr];
                     load_cnt  <= load_cnt + 1'b1;
                     if (load_cnt == N-1) begin
                         state <= WAIT_SWAP;
