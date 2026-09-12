@@ -1,23 +1,5 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 08/14/2026 04:17:45 PM
-// Design Name: 
-// Module Name: Accumulator
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+
 
 
 module accumulators #(
@@ -33,7 +15,7 @@ module accumulators #(
     input  logic                       wr_en,
     input  logic [ADDR_WIDTH-1:0] wr_addr,
     input  logic                       wr_accumulate, // 1 = accumulate, 0 = overwrite
-    input  logic [PSUM_WIDTH-1:0]    wr_data [N],
+    input  logic signed [PSUM_WIDTH-1:0]    wr_data [N-1:0],
  
     // ---- Read port: drained by activation pipeline / unified buffer ----
     input  logic                       rd_en,
@@ -44,8 +26,7 @@ module accumulators #(
  
     // Behavioral storage: NUM_ACC entries, each N x PSUM_WIDTH.
     logic [PSUM_WIDTH-1:0] mem [NUM_ACC][N];
- 
-    integer i;
+
  
     // ---- Write / accumulate ----
     // The read-modify-write is implicit in the non-blocking assignment:
@@ -56,14 +37,14 @@ module accumulators #(
     // update).
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            for (i = 0; i < NUM_ACC; i++)
+            for (int i = 0; i < NUM_ACC; i++)
                 mem[i] <= '{default: '0};
         end else if (wr_en) begin
             if (wr_accumulate) begin
-                for (i = 0; i < N; i++)
+                for (int i = 0; i < N; i++)
                     mem[wr_addr][i] <= mem[wr_addr][i] + wr_data[i];
             end else begin
-                for (i = 0; i < N; i++)
+                for (int i = 0; i < N; i++)
                     mem[wr_addr][i] <= wr_data[i];
             end
         end
@@ -75,11 +56,11 @@ module accumulators #(
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             rd_valid <= 1'b0;
-            for (i = 0; i < N; i++) rd_data[i] <= '0;
+            for (int i = 0; i < N; i++) rd_data[i] <= '0;
         end else begin
             rd_valid <= rd_en;
             if (rd_en)
-                for (i = 0; i < N; i++) rd_data[i] <= mem[rd_addr][i];
+                for (int i = 0; i < N; i++) rd_data[i] <= mem[rd_addr][i];
         end
     end
  
