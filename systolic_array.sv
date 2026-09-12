@@ -1,24 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 07/19/2026 08:26:04 PM
-// Design Name: 
-// Module Name: systolic_array
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module systolic_array #(
     parameter int N = 4,
@@ -81,6 +61,14 @@ module systolic_array #(
     // busy if a valid column is entering this cycle, or one is still
     // propagating through any of the N pipeline stages
     assign array_busy = in_valid | (|busy_sr);
+    
+    
+    // tile_ready edge detector
+    logic tile_ready_d;
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) tile_ready_d <= 1'b0;
+        else        tile_ready_d <= tile_ready;
+    end
  
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -90,7 +78,7 @@ module systolic_array #(
         end else begin
             buf_swapped <= 1'b0; // default: single-cycle pulse
  
-            if (tile_ready) tile_pending <= 1'b1;
+            if (tile_ready && !tile_ready_d) tile_pending <= 1'b1;
  
             if (tile_pending && !array_busy) begin
                 active_sel   <= ~active_sel;
