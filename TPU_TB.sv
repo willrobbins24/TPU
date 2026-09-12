@@ -1,22 +1,5 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 08/28/2026 03:16:04 PM
-// Design Name: 
-// Module Name: TPU_TB
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+
 //////////////////////////////////////////////////////////////////////////////////
 // tb_TPU.sv
 //
@@ -212,9 +195,6 @@ module TPU_TB;
         rd_addr <= addr;
         @(posedge clk);
         rd_en   <= 1'b0;
-        // rd_valid/rd_data are registered one cycle after rd_en; wait one
-        // more edge and let this edge's NBA settle before reading.
-        @(posedge clk);
         #1;
         if (!rd_valid) begin
             $display("[%0t] %s: FAIL - rd_valid not asserted", $time, label);
@@ -292,6 +272,8 @@ module TPU_TB;
         end else begin
             $display("RESULT: FAIL (%0d error(s))", errors);
         end
+        #5;
+        @(negedge clk);
         $finish;
     end
  
